@@ -10,14 +10,14 @@ interface HighlightProps {
 export class Highlight {
   keywords: string[];
   style: TextStyle;
-  onPress: (keyword: string) => void;
+  onPress?: (keyword: string) => void;
   className?: string;
   regexSource: string[];
 
   constructor({
     keywords = [],
     style = {},
-    onPress = () => {},
+    onPress,
     className = '',
   }: HighlightProps) {
     this.keywords = keywords;
