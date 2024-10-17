@@ -17,7 +17,7 @@ export class Highlight {
   constructor({
     keywords = [],
     style = {},
-    onPress = () => {},
+    onPress,
     className = '',
   }: HighlightProps) {
     this.keywords = keywords;

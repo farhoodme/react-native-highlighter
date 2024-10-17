@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableWithoutFeedback } from 'react-native';
+import { Text, Pressable } from 'react-native';
 import { splitText } from './utils';
 import type { HighlighterProps } from './utils';
 import {
@@ -21,22 +21,33 @@ interface HighlightTextProps extends HighlighterProps, TextProps {
   onLinkPress?: (link: string) => void;
 }
 
+const renderChunk = (chunk: string, index: number, style: TextStyle, onPress?: (text: string) => void) => {
+  if (onPress && onPress !== (() => {})) {
+    return (
+      <Pressable key={index} onPress={() => onPress(chunk)}>
+        <Text style={style}>{chunk}</Text>
+      </Pressable>
+    );
+  }
+  return <Text key={index} style={style}>{chunk}</Text>;
+};
+
 const HighlightedText = ({
   children,
   highlights,
   caseSensitive,
   hashtags,
   hashtagStyle = { color: 'blue' },
-  onHashtagPress = () => {},
+  onHashtagPress,
   mentions,
   mentionStyle = { color: 'blue' },
-  onMentionPress = () => {},
+  onMentionPress,
   emails,
   emailStyle = { color: 'blue' },
-  onEmailPress = () => {},
+  onEmailPress,
   links,
   linkStyle = { color: 'blue' },
-  onLinkPress = () => {},
+  onLinkPress,
   ...props
 }: HighlightTextProps) => {
   let text = '';
@@ -58,68 +69,29 @@ const HighlightedText = ({
   return (
     <Text {...props}>
       {chunks.map((chunk, index) => {
-        let keyword: Element | null = null;
+        let keyword: React.ReactNode | null = null;
         if (highlights) {
-          highlights.map((item) => {
-            const itemRegex =
-              item.regexSource.length > 0
-                ? new RegExp(
-                    `^${item.regexSource.join('|')}$`,
-                    caseSensitive ? 'gm' : 'gmi'
-                  )
-                : null;
+          highlights.forEach((item) => {
+            const itemRegex = item.regexSource.length > 0
+              ? new RegExp(`^${item.regexSource.join('|')}$`, caseSensitive ? 'gm' : 'gmi')
+              : null;
 
             if (itemRegex && itemRegex.test(chunk)) {
-              keyword = (
-                <TouchableWithoutFeedback
-                  key={index}
-                  onPress={() => item.onPress(chunk)}
-                >
-                  <Text style={item.style}>{chunk}</Text>
-                </TouchableWithoutFeedback>
-              );
+              keyword = renderChunk(chunk, index, item.style, item.onPress);
             }
           });
         }
         if (hashtags && hashtagRegexTester.test(chunk)) {
-          return (
-            <TouchableWithoutFeedback
-              key={index}
-              onPress={() => onHashtagPress(chunk)}
-            >
-              <Text style={hashtagStyle}>{chunk}</Text>
-            </TouchableWithoutFeedback>
-          );
+          return renderChunk(chunk, index, hashtagStyle, onHashtagPress);
         }
         if (mentions && mentionRegexTester.test(chunk)) {
-          return (
-            <TouchableWithoutFeedback
-              key={index}
-              onPress={() => onMentionPress(chunk)}
-            >
-              <Text style={mentionStyle}>{chunk}</Text>
-            </TouchableWithoutFeedback>
-          );
+          return renderChunk(chunk, index, mentionStyle, onMentionPress);
         }
         if (emails && emailRegexTester.test(chunk)) {
-          return (
-            <TouchableWithoutFeedback
-              key={index}
-              onPress={() => onEmailPress(chunk)}
-            >
-              <Text style={emailStyle}>{chunk}</Text>
-            </TouchableWithoutFeedback>
-          );
+          return renderChunk(chunk, index, emailStyle, onEmailPress);
         }
         if (links && urlRegexTester.test(chunk)) {
-          return (
-            <TouchableWithoutFeedback
-              key={index}
-              onPress={() => onLinkPress(chunk)}
-            >
-              <Text style={linkStyle}>{chunk}</Text>
-            </TouchableWithoutFeedback>
-          );
+          return renderChunk(chunk, index, linkStyle, onLinkPress);
         }
         if (keyword) {
           return keyword;
