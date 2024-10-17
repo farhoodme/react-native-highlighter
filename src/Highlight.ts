@@ -10,7 +10,7 @@ interface HighlightProps {
 export class Highlight {
   keywords: string[];
   style: TextStyle;
-  onPress: (keyword: string) => void;
+  onPress?: (keyword: string) => void;
   className?: string;
   regexSource: string[];
 

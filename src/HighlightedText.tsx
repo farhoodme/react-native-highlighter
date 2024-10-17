@@ -21,7 +21,12 @@ interface HighlightTextProps extends HighlighterProps, TextProps {
   onLinkPress?: (link: string) => void;
 }
 
-const renderChunk = (chunk: string, index: number, style: TextStyle, onPress?: (text: string) => void) => {
+const renderChunk = (
+  chunk: string,
+  index: number,
+  style: TextStyle,
+  onPress?: (text: string) => void
+) => {
   if (onPress && onPress !== (() => {})) {
     return (
       <Pressable key={index} onPress={() => onPress(chunk)}>
@@ -29,7 +34,11 @@ const renderChunk = (chunk: string, index: number, style: TextStyle, onPress?: (
       </Pressable>
     );
   }
-  return <Text key={index} style={style}>{chunk}</Text>;
+  return (
+    <Text key={index} style={style}>
+      {chunk}
+    </Text>
+  );
 };
 
 const HighlightedText = ({
@@ -72,9 +81,13 @@ const HighlightedText = ({
         let keyword: React.ReactNode | null = null;
         if (highlights) {
           highlights.forEach((item) => {
-            const itemRegex = item.regexSource.length > 0
-              ? new RegExp(`^${item.regexSource.join('|')}$`, caseSensitive ? 'gm' : 'gmi')
-              : null;
+            const itemRegex =
+              item.regexSource.length > 0
+                ? new RegExp(
+                    `^${item.regexSource.join('|')}$`,
+                    caseSensitive ? 'gm' : 'gmi'
+                  )
+                : null;
 
             if (itemRegex && itemRegex.test(chunk)) {
               keyword = renderChunk(chunk, index, item.style, item.onPress);
